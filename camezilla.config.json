@@ -20,7 +20,7 @@
         "host": "localhost",
         "user": "root",
         "password": "",
-        "name": "my_db",
+        "name": "progettosostegno",
         "error-page": "error.php"
     },
     "authentication": {
