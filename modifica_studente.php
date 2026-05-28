@@ -1,5 +1,22 @@
 <?php
-$conn = new mysqli("localhost", "root", "", "sostegno");
+function normalizeStudyType($value) {
+    $map = [
+        'Personalizzata' => 'differenziata',
+        'Differenziata' => 'differenziata',
+        'Minima' => 'obiettivi minimi',
+        'Obiettivi Minimi' => 'obiettivi minimi',
+        'PEI Differenziato' => 'differenziata',
+        'PEI Semplificato' => 'obiettivi minimi',
+        'Personalizzata (BES/DSA)' => 'differenziata',
+        'Nessuna' => 'differenziata',
+        'differenziata' => 'differenziata',
+        'obiettivi minimi' => 'obiettivi minimi',
+    ];
+
+    return $map[$value] ?? 'differenziata';
+}
+
+$conn = new mysqli("localhost", "rizzo", "03022005", "sostegno");
 
 if ($conn->connect_error) {
     die("Connessione fallita: " . $conn->connect_error);
@@ -31,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $class = $_POST['classe'] ?? '';
     $city = $_POST['comune'] ?? '';
     $hours = !empty($_POST['monte_ore']) ? intval($_POST['monte_ore']) : 0;
-    $study_type = $_POST['programmazione'] ?? 'Nessuna';
+    $study_type = normalizeStudyType($_POST['programmazione'] ?? $_POST['tipo_programmazione'] ?? $_POST['study_type'] ?? 'differenziata');
 
     $sql_update = "UPDATE students SET first_name = ?, last_name = ?, birth_date = ?, class = ?, city = ?, study_type = ?, hours = ? WHERE id = ?";
     $stmt_update = $conn->prepare($sql_update);
@@ -137,10 +154,8 @@ $conn->close();
                         <div class="form-group" style="grid-column: span 2;">
                             <label for="programmazione">Tipo Programmazione</label>
                             <select id="programmazione" name="programmazione" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: white;">
-                                <option value="Personalizzata" <?php if($studente['study_type'] == 'Personalizzata') echo 'selected'; ?>>Personalizzata</option>
-                                <option value="Differenziata" <?php if($studente['study_type'] == 'Differenziata') echo 'selected'; ?>>Differenziata</option>
-                                <option value="Minima" <?php if($studente['study_type'] == 'Minima') echo 'selected'; ?>>Obiettivi Minimi / Equipollente</option>
-                                <option value="Nessuna" <?php if($studente['study_type'] == 'Nessuna') echo 'selected'; ?>>Nessuna</option>
+                                <option value="differenziata" <?php if($studente['study_type'] == 'differenziata') echo 'selected'; ?>>Differenziata</option>
+                                <option value="obiettivi minimi" <?php if($studente['study_type'] == 'obiettivi minimi') echo 'selected'; ?>>Obiettivi Minimi</option>
                             </select>
                         </div>
                     </div>

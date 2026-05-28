@@ -6,7 +6,7 @@ if (isset($_SESSION['user_id'])) {
     exit;
 }
 
-$conn = new mysqli("localhost", "root", "", "sostegno");
+$conn = new mysqli("localhost", "rizzo", "03022005", "sostegno");
 
 if ($conn->connect_error) {
     die("Connessione fallita: " . $conn->connect_error);

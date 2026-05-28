@@ -75,14 +75,14 @@ session_start();
                         <h1>Insegnanti di Sostegno</h1>
                         <p>Elenco dei docenti di ruolo ed organico di fatto assegnati all'istituto.</p>
                     </div>
-                    <a href="nuovo_insegnante.php">
+                    <a href="nuovoinsegnante.php">
                         <button class="btn-primary">+ Nuovo Insegnante</button>
                     </a>
                 </div>
 
                 <div class="cards-grid">
                     <?php
-                    $conn = new mysqli("localhost", "root", "", "sostegno");
+                    $conn = new mysqli("localhost", "rizzo", "03022005", "sostegno");
 
                     if ($conn->connect_error) {
                         die("Connessione fallita: " . $conn->connect_error);
