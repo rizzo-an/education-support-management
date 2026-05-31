@@ -1,13 +1,28 @@
 <?php
 $host = "localhost";
-$username = "root"; 
-$password = "";     
+$username = "rizzo"; 
+$password = "03022005";     
 $database = "sostegno";
 
 $conn = new mysqli($host, $username, $password, $database);
 
 if ($conn->connect_error) {
     die("Connessione fallita: " . $conn->connect_error);
+}
+
+function normalizeStudyType($value) {
+    $map = [
+        'PEI Differenziato' => 'differenziata',
+        'PEI Semplificato' => 'obiettivi minimi',
+        'Personalizzata' => 'differenziata',
+        'Personalizzata (BES/DSA)' => 'differenziata',
+        'Differenziata' => 'differenziata',
+        'Obiettivi Minimi' => 'obiettivi minimi',
+        'differenziata' => 'differenziata',
+        'obiettivi minimi' => 'obiettivi minimi',
+    ];
+
+    return $map[$value] ?? 'differenziata';
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -19,9 +34,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $class = $_POST['classe'] ?? '';
     $city = $_POST['comune'] ?? $_POST['city'] ?? ''; 
     $hours = !empty($_POST['monte_ore']) ? intval($_POST['monte_ore']) : 0;
-    $study_type = $_POST['programmazione'] ?? $_POST['study_type'] ?? 'Nessuna';
+    $study_type = normalizeStudyType($_POST['tipo_programmazione'] ?? $_POST['programmazione'] ?? $_POST['study_type'] ?? 'differenziata');
 
-    $sql = "INSERT INTO students (first_name, last_name, birth_date, class, city, study_type, hours) 
+    $sql = "INSERT INTO students (`first_name`, `last_name`, `birth_date`, `class`, `city`, `study_type`, `hours`) 
             VALUES (?, ?, ?, ?, ?, ?, ?)";
             
     $stmt = $conn->prepare($sql);

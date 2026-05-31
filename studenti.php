@@ -147,11 +147,6 @@ if ($sostegnoResult) {
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="filter-actions">
-                        <button class="btn-outline">
-                            <span>🔍</span> Più Filtri
-                        </button>
-                    </div>
                 </div>
 
                 <div class="table-card">

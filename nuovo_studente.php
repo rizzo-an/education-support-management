@@ -108,9 +108,8 @@ $ruolo_utente = "Admin";
                                 <label for="tipo_programmazione">Tipo di Programmazione <span class="required">*</span></label>
                                 <select id="tipo_programmazione" name="tipo_programmazione" required>
                                     <option value="" disabled selected>Seleziona tipologia...</option>
-                                    <option value="PEI Differenziato">PEI Differenziato</option>
-                                    <option value="PEI Semplificato">PEI Semplificato (Obiettivi Minimi)</option>
-                                    <option value="Personalizzata">Personalizzata (BES/DSA)</option>
+                                    <option value="differenziata">Differenziata</option>
+                                    <option value="obiettivi minimi">Obiettivi Minimi</option>
                                 </select>
                             </div>
                             <div class="form-group">
