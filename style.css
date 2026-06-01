@@ -88,7 +88,6 @@ body {
     display: flex; 
     flex-direction: column; 
     overflow-y: auto; 
-    padding-top: 72px; /* spazio per l'header fisso */
 }
 
 .topbar { 
@@ -98,11 +97,9 @@ body {
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
-    position: fixed; /* header sempre visibile */
+    position: sticky; 
     top: 0; 
-    left: 260px; /* larghezza sidebar */
-    right: 0;
-    z-index: 1000; 
+    z-index: 10; 
 }
 
 .topbar-title { font-size: 1.1rem; font-weight: 500; }

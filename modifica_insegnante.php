@@ -27,15 +27,17 @@ if (!$teacher) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $first_name = trim($_POST['nome'] ?? '');
-    $last_name = trim($_POST['cognome'] ?? '');
+    $first_name = trim($_POST['first_name'] ?? '');
+    $last_name = trim($_POST['last_name'] ?? '');
     $email = trim($_POST['email'] ?? '');
+    $contract_type = trim($_POST['contract_type'] ?? 'Tempo Indeterminato');
+    $area = trim($_POST['area_specializzazione'] ?? 'Nessuna specifica');
 
     if (!empty($first_name) && !empty($last_name) && !empty($email)) {
-        $sql = "UPDATE teachers SET first_name = ?, last_name = ?, email = ? WHERE id = ?";
+        $sql = "UPDATE teachers SET first_name = ?, last_name = ?, email = ?, contract_type = ?, area_specializzazione = ? WHERE id = ?";
         $stmt_up = $conn->prepare($sql);
         if ($stmt_up) {
-            $stmt_up->bind_param("sssi", $first_name, $last_name, $email, $id);
+            $stmt_up->bind_param("sssssi", $first_name, $last_name, $email, $contract_type, $area, $id);
             if ($stmt_up->execute()) {
                 header("Location: insegnanti.php?aggiornato=1");
                 exit;
@@ -74,6 +76,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <a href="insegnanti.php" class="nav-item active">
                     <span class="icon">📖</span> Insegnanti di Sostegno
                 </a>
+                <a href="cooperative.php" class="nav-item">
+                    <span class="icon">🏢</span> Cooperative
+                </a>
             </nav>
         </aside>
 
@@ -81,17 +86,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <header class="topbar">
                 <div class="topbar-title">Modifica Insegnante</div>
                 <div class="user-profile">
-                    <div class="avatar">
-                        <?php echo isset($_SESSION['email']) ? strtoupper(substr($_SESSION['email'], 0, 1)) : "U"; ?>
+                        <div class="avatar">
+                            <?php 
+                            echo isset($_SESSION['email']) ? strtoupper(substr($_SESSION['email'], 0, 1)) : "U"; 
+                            ?>
+                        </div>
+                        <div class="user-info">
+                            <strong>
+                                <?php 
+                                if (isset($_SESSION['email'])) {
+                                    echo htmlspecialchars(explode('@', $_SESSION['email'])[0]);
+                                } else {
+                                    echo "Ospite";
+                                }
+                                ?>
+                            </strong>
+                            <span>Docente Autorizzato</span>
+                            <?php if (isset($_SESSION['user_id'])): ?>
+                                <a href="logout.php" style="font-size: 0.8rem; color: #dc2626; text-decoration: none; display: block; margin-top: 2px;">Disconnetti</a>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                    <div class="user-info">
-                        <strong><?php echo isset($_SESSION['email']) ? htmlspecialchars(explode('@', $_SESSION['email'])[0]) : "Ospite"; ?></strong>
-                        <span>Docente Autorizzato</span>
-                    </div>
-                </div>
             </header>
 
             <main class="content">
+                <a href="insegnanti.php" class="back-link">← Torna all'elenco Insegnanti</a>
                 <div class="page-header">
                     <div>
                         <h1>Modifica Scheda Insegnante</h1>
@@ -112,17 +131,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                             <div class="form-group">
                                 <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #334155;">Nome <span style="color: #dc2626;">*</span></label>
-                                <input type="text" name="nome" value="<?php echo htmlspecialchars($teacher['first_name']); ?>" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none;">
+                                <input type="text" name="first_name" value="<?php echo htmlspecialchars($teacher['first_name']); ?>" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none;">
                             </div>
                             <div class="form-group">
                                 <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #334155;">Cognome <span style="color: #dc2626;">*</span></label>
-                                <input type="text" name="cognome" value="<?php echo htmlspecialchars($teacher['last_name']); ?>" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none;">
+                                <input type="text" name="last_name" value="<?php echo htmlspecialchars($teacher['last_name']); ?>" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none;">
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #334155;">Email Istituzionale <span style="color: #dc2626;">*</span></label>
-                            <input type="email" name="email" value="<?php echo htmlspecialchars($teacher['email']); ?>" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none;">
+                        <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:20px;">
+                            <div class="form-group">
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #334155;">Email Istituzionale <span style="color: #dc2626;">*</span></label>
+                                <input type="email" name="email" value="<?php echo htmlspecialchars($teacher['email']); ?>" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none;">
+                            </div>
+                            <div class="form-group">
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #334155;" for="contract_type">Tipo di Contratto</label>
+                                <select id="contract_type" name="contract_type" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: white;">
+                                    <option value="Tempo Indeterminato" <?php if(($teacher['contract_type'] ?? '') === 'Tempo Indeterminato') echo 'selected'; ?>>Di Ruolo (Indeterminato)</option>
+                                    <option value="Tempo Determinato" <?php if(($teacher['contract_type'] ?? '') === 'Tempo Determinato') echo 'selected'; ?>>Organico di Fatto (Determinato)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #334155;" for="area_specializzazione">Area di Specializzazione</label>
+                            <select id="area_specializzazione" name="area_specializzazione" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: white;">
+                                <option value="Nessuna specifica" <?php if(($teacher['area_specializzazione'] ?? '') === 'Nessuna specifica') echo 'selected'; ?>>Nessuna specifica</option>
+                                <option value="Area Umanistica (AD04)" <?php if(($teacher['area_specializzazione'] ?? '') === 'Area Umanistica (AD04)') echo 'selected'; ?>>Area Umanistica (AD04)</option>
+                                <option value="Area Scientifica (AD01)" <?php if(($teacher['area_specializzazione'] ?? '') === 'Area Scientifica (AD01)') echo 'selected'; ?>>Area Scientifica (AD01)</option>
+                                <option value="Area Tecnica (AD03)" <?php if(($teacher['area_specializzazione'] ?? '') === 'Area Tecnica (AD03)') echo 'selected'; ?>>Area Tecnica (AD03)</option>
+                            </select>
                         </div>
 
                         <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px; padding-top: 20px; border-top: 1px solid #f1f5f9;">

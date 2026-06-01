@@ -40,7 +40,9 @@ if ($sostegnoResult) {
     <link rel="stylesheet" href="style.css">
     <style>
         .clickable-row { cursor: pointer; }
-        .clickable-row:hover { background-color: #f8fafc; }
+        .clickable-row td { cursor: pointer; }
+        .clickable-row:hover { background-color: #e8f0ff; }
+        .clickable-row:hover td { background-color: transparent; }
     </style>
 </head>
 <body>
@@ -60,6 +62,9 @@ if ($sostegnoResult) {
                 </a>
                 <a href="insegnanti.php" class="nav-item">
                     <span class="icon">📖</span> Insegnanti di Sostegno
+                </a>
+                <a href="cooperative.php" class="nav-item">
+                    <span class="icon">🏢</span> Cooperative
                 </a>
             </nav>
             <div class="sidebar-footer">
@@ -101,7 +106,7 @@ if ($sostegnoResult) {
                                 <a href="logout.php" style="font-size: 0.8rem; color: #dc2626; text-decoration: none; display: block; margin-top: 2px;">Disconnetti</a>
                             <?php endif; ?>
                         </div>
-                        </div>
+                    </div>
                 </div>
             </header>
 

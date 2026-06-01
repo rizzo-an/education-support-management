@@ -47,14 +47,17 @@ if (!$conn->connect_error) {
                 <a href="insegnanti.php" class="nav-item">
                     <span class="icon">📖</span> Insegnanti di Sostegno
                 </a>
+                <a href="cooperative.php" class="nav-item">
+                    <span class="icon">🏢</span> Cooperative
+                </a>
             </nav>
         </aside>
 
         <div class="main-wrapper">
             
             <header class="topbar">
-                <div class="topbar-title">Dashboard</div>
-                 <div class="user-profile">
+                <div class="topbar-title">Nuovo Studente</div>
+                    <div class="user-profile">
                         <div class="avatar">
                             <?php 
                             echo isset($_SESSION['email']) ? strtoupper(substr($_SESSION['email'], 0, 1)) : "U"; 

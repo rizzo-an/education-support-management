@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 function normalizeStudyType($value) {
     $map = [
         'Personalizzata' => 'differenziata',
@@ -76,14 +78,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $class = $_POST['classe'] ?? '';
     $city = $_POST['comune'] ?? '';
     $hours = !empty($_POST['monte_ore']) ? intval($_POST['monte_ore']) : 0;
+    $note = $_POST['note'] ?? '';
     $study_type = normalizeStudyType($_POST['programmazione'] ?? $_POST['tipo_programmazione'] ?? $_POST['study_type'] ?? 'differenziata');
 
-    $sql_update = "UPDATE students SET first_name = ?, last_name = ?, birth_date = ?, class = ?, city = ?, study_type = ?, hours = ? WHERE id = ?";
+    $sql_update = "UPDATE students SET first_name = ?, last_name = ?, birth_date = ?, class = ?, city = ?, study_type = ?, hours = ?, note = ? WHERE id = ?";
     $stmt_update = $conn->prepare($sql_update);
-    
+
     if ($stmt_update) {
-        $stmt_update->bind_param("ssssssii", $first_name, $last_name, $birth_date, $class, $city, $study_type, $hours, $id);
-        if ($stmt_update->execute()) {            // aggiorna relazioni tutor / teachers
+        $stmt_update->bind_param("ssssssisi", $first_name, $last_name, $birth_date, $class, $city, $study_type, $hours, $note, $id);
+        if ($stmt_update->execute()) {
             $conn->begin_transaction();
             try {
                 // elimina relazioni esistenti
@@ -123,6 +126,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "<script>alert('Errore durante l\'aggiornamento del database.');</script>";
         }
         $stmt_update->close();
+    } else {
+        echo "<script>alert('Errore nella preparazione della query di aggiornamento.');</script>";
     }
 }
 
@@ -155,23 +160,42 @@ $conn->close();
                 <a href="insegnanti.php" class="nav-item">
                     <span class="icon">📖</span> Insegnanti di Sostegno
                 </a>
+                <a href="cooperative.php" class="nav-item">
+                    <span class="icon">🏢</span> Cooperative
+                </a>
             </nav>
         </aside>
 
         <div class="main-wrapper">
             
             <header class="topbar">
-                <div class="topbar-title">Dashboard</div>
+                <div class="topbar-title">Modifica Studente</div>
                 <div class="user-profile">
-                    <div class="avatar">MR</div>
-                    <div class="user-info">
-                        <strong>Mario Rossi</strong>
-                        <span>Docente Autorizzato</span>
+                        <div class="avatar">
+                            <?php 
+                            echo isset($_SESSION['email']) ? strtoupper(substr($_SESSION['email'], 0, 1)) : "U"; 
+                            ?>
+                        </div>
+                        <div class="user-info">
+                            <strong>
+                                <?php 
+                                if (isset($_SESSION['email'])) {
+                                    echo htmlspecialchars(explode('@', $_SESSION['email'])[0]);
+                                } else {
+                                    echo "Ospite";
+                                }
+                                ?>
+                            </strong>
+                            <span>Docente Autorizzato</span>
+                            <?php if (isset($_SESSION['user_id'])): ?>
+                                <a href="logout.php" style="font-size: 0.8rem; color: #dc2626; text-decoration: none; display: block; margin-top: 2px;">Disconnetti</a>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                </div>
             </header>
 
             <main class="content">
+                <a href="studenti.php" class="back-link">← Torna all'elenco Studenti</a>
                 <div class="page-header">
                     <div>
                         <h1>Modifica Anagrafica Studente</h1>
@@ -219,6 +243,11 @@ $conn->close();
                                 <option value="obiettivi minimi" <?php if($studente['study_type'] == 'obiettivi minimi') echo 'selected'; ?>>Obiettivi Minimi</option>
                             </select>
                         </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 20px; grid-column: span 2;">
+                        <label for="note">Note sul supporto educativo</label>
+                        <textarea id="note" name="note" rows="4" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; resize: vertical;"><?php echo htmlspecialchars($studente['note'] ?? ''); ?></textarea>
                     </div>
 
                     <div class="form-section" style="margin-top:20px;">

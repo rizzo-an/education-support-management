@@ -31,6 +31,9 @@ session_start();
                 <a href="insegnanti.php" class="nav-item">
                     <span class="icon">📖</span> Insegnanti di Sostegno
                 </a>
+                <a href="cooperative.php" class="nav-item">
+                    <span class="icon">🏢</span> Cooperative
+                </a>
             </nav>
         </aside>
 

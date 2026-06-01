@@ -108,6 +108,9 @@ $teacherNames = array_map(function ($item) {
                 <a href="insegnanti.php" class="nav-item">
                     <span class="icon">📖</span> Insegnanti di Sostegno
                 </a>
+                <a href="cooperative.php" class="nav-item">
+                    <span class="icon">🏢</span> Cooperative
+                </a>
             </nav>
         </aside>
 
@@ -116,9 +119,21 @@ $teacherNames = array_map(function ($item) {
                 <div class="topbar-title">Scheda Studente</div>
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <div class="user-profile">
-                        <div class="avatar"><?php echo isset($_SESSION['email']) ? strtoupper(substr($_SESSION['email'], 0, 1)) : 'U'; ?></div>
+                        <div class="avatar">
+                            <?php 
+                            echo isset($_SESSION['email']) ? strtoupper(substr($_SESSION['email'], 0, 1)) : "U"; 
+                            ?>
+                        </div>
                         <div class="user-info">
-                            <strong><?php echo isset($_SESSION['email']) ? htmlspecialchars(explode('@', $_SESSION['email'])[0]) : 'Ospite'; ?></strong>
+                            <strong>
+                                <?php 
+                                if (isset($_SESSION['email'])) {
+                                    echo htmlspecialchars(explode('@', $_SESSION['email'])[0]);
+                                } else {
+                                    echo "Ospite";
+                                }
+                                ?>
+                            </strong>
                             <span>Docente Autorizzato</span>
                             <?php if (isset($_SESSION['user_id'])): ?>
                                 <a href="logout.php" style="font-size: 0.8rem; color: #dc2626; text-decoration: none; display: block; margin-top: 2px;">Disconnetti</a>
@@ -129,6 +144,7 @@ $teacherNames = array_map(function ($item) {
             </header>
 
             <main class="content student-card-container">
+                <a href="studenti.php" class="back-link">← Torna all'elenco Studenti</a>
                 <div class="back-group">
                     <div>
                         <h1><?php echo $fullName; ?></h1>
@@ -170,6 +186,15 @@ $teacherNames = array_map(function ($item) {
                             <div class="info-block">
                                 <strong>Tipologia di programmazione</strong>
                                 <span><?php echo $studyType ?: 'Non definita'; ?></span>
+                            </div>
+                        </div>
+
+                        <div style="margin-top:20px;">
+                            <div class="info-block" style="background:white; box-shadow: inset 0 0 0 1px rgba(226,226,236,0.5);">
+                                <strong>Note</strong>
+                                <span style="display:block; white-space:pre-wrap; color: var(--text-muted); margin-top:8px;">
+                                    <?php echo nl2br(htmlspecialchars($student['note'] ?? '')); ?>
+                                </span>
                             </div>
                         </div>
                     </section>

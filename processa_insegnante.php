@@ -15,16 +15,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $first_name = $_POST['nome'] ?? '';
     $last_name = $_POST['cognome'] ?? '';
     $email = $_POST['email'] ?? '';
+    $contract_type = $_POST['contract_type'] ?? 'Tempo Indeterminato';
+    $area = $_POST['area_specializzazione'] ?? 'Nessuna specifica';
  
 
-    $sql = "INSERT INTO teachers ( first_name, last_name, email) 
-            VALUES (?, ?, ?)";
+    $sql = "INSERT INTO teachers (first_name, last_name, email, contract_type, area_specializzazione) 
+            VALUES (?, ?, ?, ?, ?)";
             
     $stmt = $conn->prepare($sql);
 
     if ($stmt) {
     
-        $stmt->bind_param("sss", $first_name, $last_name, $email);
+        $stmt->bind_param("sssss", $first_name, $last_name, $email, $contract_type, $area);
        
         if ($stmt->execute()) {
      

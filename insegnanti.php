@@ -26,6 +26,9 @@ session_start();
                 <a href="#" class="nav-item active">
                     <span class="icon">📖</span> Insegnanti di Sostegno
                 </a>
+                <a href="cooperative.php" class="nav-item">
+                    <span class="icon">🏢</span> Cooperative
+                </a>
             </nav>
             <div class="sidebar-footer">
                 <button class="cookie-btn">Gestisci Cookie</button>

@@ -1,3 +1,26 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
+}
+$iniziali_utente = isset($_SESSION['email']) ? strtoupper(substr($_SESSION['email'], 0, 1)) : "U";
+$nome_cognome_utente = isset($_SESSION['email']) ? htmlspecialchars(explode('@', $_SESSION['email'])[0]) : "Ospite";
+$ruolo_utente = "Docente Autorizzato";
+
+$conn = new mysqli("localhost", "rizzo", "03022005", "sostegno");
+if ($conn->connect_error) {
+    die("Connessione fallita: " . $conn->connect_error);
+}
+
+$cooperatives = [];
+$coopResult = $conn->query("SELECT id, name FROM cooperatives ORDER BY name ASC");
+if ($coopResult) {
+    while ($row = $coopResult->fetch_assoc()) {
+        $cooperatives[] = $row;
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -7,11 +30,6 @@
     <link rel="stylesheet" href="style.css">
     <script src="../js/general.js" defer></script>
 </head>
-<?php
-$iniziali_utente = "UT"; 
-$nome_cognome_utente = "Utente di Prova";
-$ruolo_utente = "Docente";
-?>
 <body>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
@@ -32,24 +50,31 @@ $ruolo_utente = "Docente";
                 <a href="insegnanti.php" class="nav-item">
                     <span class="icon">📖</span> Insegnanti di Sostegno
                 </a>
+                <a href="cooperative.php" class="nav-item">
+                    <span class="icon">🏢</span> Cooperative
+                </a>
             </nav>
         </aside>
 
         <div class="main-wrapper">
             <header class="topbar">
                 <div class="topbar-left">
-                    <div class="topbar-title">Anagrafica Tutor</div>
+                    <div class="topbar-title">Nuovo Tutor</div>
                 </div>
                 <div class="user-profile">
                     <div class="avatar"><?php echo $iniziali_utente; ?></div>
                     <div class="user-info">
                         <strong><?php echo $nome_cognome_utente; ?></strong>
                         <span><?php echo $ruolo_utente; ?></span>
+                        <?php if (isset($_SESSION['user_id'])): ?>
+                            <a href="logout.php" style="font-size: 0.8rem; color: #dc2626; text-decoration: none; display: block; margin-top: 2px;">Disconnetti</a>
+                        <?php endif; ?>
                     </div>
                 </div>
             </header>
 
             <main class="content">
+                <a href="tutor.php" class="back-link">← Torna all'elenco Tutor</a>
                 <div class="page-header">
                     <div>
                         <h1>Aggiungi Nuovo Tutor</h1>
@@ -108,11 +133,10 @@ $ruolo_utente = "Docente";
                             <div class="form-group">
                                 <label for="cooperativa">Ente di provenienza <span class="required">*</span></label>
                                 <select id="cooperativa" name="cooperativa" required>
-                                    <option value="" disabled selected>Seleziona la città dell'ente...</option>
-                                    <option value="1">Bologna</option>
-                                    <option value="2">Ferrara</option>
-                                    <option value="3">Modena</option>
-                                    <option value="4">Reggio Emilia</option>
+                                    <option value="" disabled selected>Seleziona la cooperativa...</option>
+                                    <?php foreach ($cooperatives as $coop): ?>
+                                        <option value="<?php echo $coop['id']; ?>"><?php echo htmlspecialchars($coop['name']); ?></option>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
                             <div class="form-group">

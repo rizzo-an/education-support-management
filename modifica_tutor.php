@@ -29,14 +29,18 @@ if (!$tutor) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $first_name = trim($_POST['nome'] ?? '');
     $last_name = trim($_POST['cognome'] ?? '');
+    $codice_fiscale = strtoupper(trim($_POST['codice_fiscale'] ?? ''));
+    $birth_date = !empty($_POST['data_nascita']) ? $_POST['data_nascita'] : null;
     $telephone_number = trim($_POST['telefono'] ?? '');
     $cooperative_id = !empty($_POST['cooperativa']) ? intval($_POST['cooperativa']) : null;
+    $monte_ore = !empty($_POST['monte_ore']) ? intval($_POST['monte_ore']) : null;
+    $note = trim($_POST['note'] ?? '');
 
     if (!empty($first_name) && !empty($last_name) && !empty($telephone_number)) {
-        $sql = "UPDATE tutors SET first_name = ?, last_name = ?, telephone_number = ?, cooperative_id = ? WHERE id = ?";
+        $sql = "UPDATE tutors SET first_name = ?, last_name = ?, codice_fiscale = ?, birth_date = ?, telephone_number = ?, cooperative_id = ?, monte_ore = ?, note = ? WHERE id = ?";
         $stmt_up = $conn->prepare($sql);
         if ($stmt_up) {
-            $stmt_up->bind_param("sssii", $first_name, $last_name, $telephone_number, $cooperative_id, $id);
+            $stmt_up->bind_param("sssssissi", $first_name, $last_name, $codice_fiscale, $birth_date, $telephone_number, $cooperative_id, $monte_ore, $note, $id);
             if ($stmt_up->execute()) {
                 header("Location: tutor.php?aggiornato=1");
                 exit;
@@ -75,6 +79,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <a href="insegnanti.php" class="nav-item">
                     <span class="icon">📖</span> Insegnanti di Sostegno
                 </a>
+                <a href="cooperative.php" class="nav-item">
+                    <span class="icon">🏢</span> Cooperative
+                </a>
             </nav>
         </aside>
 
@@ -82,17 +89,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <header class="topbar">
                 <div class="topbar-title">Modifica Tutor</div>
                 <div class="user-profile">
-                    <div class="avatar">
-                        <?php echo isset($_SESSION['email']) ? strtoupper(substr($_SESSION['email'], 0, 1)) : "U"; ?>
+                        <div class="avatar">
+                            <?php 
+                            echo isset($_SESSION['email']) ? strtoupper(substr($_SESSION['email'], 0, 1)) : "U"; 
+                            ?>
+                        </div>
+                        <div class="user-info">
+                            <strong>
+                                <?php 
+                                if (isset($_SESSION['email'])) {
+                                    echo htmlspecialchars(explode('@', $_SESSION['email'])[0]);
+                                } else {
+                                    echo "Ospite";
+                                }
+                                ?>
+                            </strong>
+                            <span>Docente Autorizzato</span>
+                            <?php if (isset($_SESSION['user_id'])): ?>
+                                <a href="logout.php" style="font-size: 0.8rem; color: #dc2626; text-decoration: none; display: block; margin-top: 2px;">Disconnetti</a>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                    <div class="user-info">
-                        <strong><?php echo isset($_SESSION['email']) ? htmlspecialchars(explode('@', $_SESSION['email'])[0]) : "Ospite"; ?></strong>
-                        <span>Docente Autorizzato</span>
-                    </div>
-                </div>
             </header>
 
             <main class="content">
+                <a href="tutor.php" class="back-link">← Torna all'elenco Tutor</a>
                 <div class="page-header">
                     <div>
                         <h1>Modifica Scheda Tutor</h1>
@@ -123,9 +144,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                             <div class="form-group">
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #334155;">Codice Fiscale</label>
+                                <input type="text" name="codice_fiscale" maxlength="16" value="<?php echo htmlspecialchars($tutor['codice_fiscale'] ?? ''); ?>" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; text-transform: uppercase;">
+                            </div>
+                            <div class="form-group">
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #334155;">Data di Nascita</label>
+                                <input type="date" name="data_nascita" value="<?php echo htmlspecialchars($tutor['birth_date'] ?? ''); ?>" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none;">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
                                 <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #334155;">Numero di Telefono <span style="color: #dc2626;">*</span></label>
                                 <input type="text" name="telefono" value="<?php echo htmlspecialchars($tutor['telephone_number']); ?>" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none;">
                             </div>
+                            <div class="form-group">
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #334155;">Monte Ore Settimanale</label>
+                                <input type="number" name="monte_ore" min="1" max="40" value="<?php echo htmlspecialchars($tutor['monte_ore'] ?? ''); ?>" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none;">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
                             <div class="form-group">
                                 <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #334155;">Cooperativa Assegnata</label>
                                 <select name="cooperativa" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; background: white;">
@@ -141,6 +180,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     ?>
                                 </select>
                             </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #334155;">Note aggiuntive</label>
+                            <textarea name="note" rows="4" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; resize: vertical;"><?php echo htmlspecialchars($tutor['note'] ?? ''); ?></textarea>
                         </div>
 
                         <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px; padding-top: 20px; border-top: 1px solid #f1f5f9;">

@@ -13,20 +13,23 @@ if ($conn->connect_error) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     
-    $first_name = $_POST['nome'] ?? '';
-    $last_name = $_POST['cognome'] ?? '';
-    $telephone_number = $_POST['telefono'] ?? '';
-    $cooperative_id = $_POST['cooperativa'] ?? '';
-  
+    $first_name = trim($_POST['nome'] ?? '');
+    $last_name = trim($_POST['cognome'] ?? '');
+    $codice_fiscale = strtoupper(trim($_POST['codice_fiscale'] ?? ''));
+    $birth_date = !empty($_POST['data_nascita']) ? $_POST['data_nascita'] : null;
+    $telephone_number = trim($_POST['telefono'] ?? '');
+    $cooperative_id = !empty($_POST['cooperativa']) ? intval($_POST['cooperativa']) : null;
+    $monte_ore = !empty($_POST['monte_ore']) ? intval($_POST['monte_ore']) : null;
+    $note = trim($_POST['note'] ?? '');
 
-    $sql = "INSERT INTO tutors (first_name, last_name, telephone_number, cooperative_id) 
-        VALUES (?, ?, ?, ?)";
+    $sql = "INSERT INTO tutors (first_name, last_name, codice_fiscale, birth_date, telephone_number, cooperative_id, monte_ore, note) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             
     $stmt = $conn->prepare($sql);
 
     if ($stmt) {
         
-        $stmt->bind_param("ssss", $first_name, $last_name, $telephone_number, $cooperative_id);
+        $stmt->bind_param("sssssiss", $first_name, $last_name, $codice_fiscale, $birth_date, $telephone_number, $cooperative_id, $monte_ore, $note);
        
         if ($stmt->execute()) {
             $stmt->close();
