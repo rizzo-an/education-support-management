@@ -38,6 +38,10 @@ if ($sostegnoResult) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestione Sostegno - Studenti</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .clickable-row { cursor: pointer; }
+        .clickable-row:hover { background-color: #f8fafc; }
+    </style>
 </head>
 <body>
     <div class="dashboard-layout">
@@ -77,27 +81,27 @@ if ($sostegnoResult) {
                     <?php endif; ?>
 
                     <div class="user-profile">
-    <div class="avatar">
-        <?php 
-        echo isset($_SESSION['email']) ? strtoupper(substr($_SESSION['email'], 0, 1)) : "U"; 
-        ?>
-    </div>
-    <div class="user-info">
-        <strong>
-            <?php 
-            if (isset($_SESSION['email'])) {
-                echo htmlspecialchars(explode('@', $_SESSION['email'])[0]);
-            } else {
-                echo "Ospite";
-            }
-            ?>
-        </strong>
-        <span>Docente Autorizzato</span>
-        <?php if (isset($_SESSION['user_id'])): ?>
-            <a href="logout.php" style="font-size: 0.8rem; color: #dc2626; text-decoration: none; display: block; margin-top: 2px;">Disconnetti</a>
-        <?php endif; ?>
-    </div>
-</div>
+                        <div class="avatar">
+                            <?php 
+                            echo isset($_SESSION['email']) ? strtoupper(substr($_SESSION['email'], 0, 1)) : "U"; 
+                            ?>
+                        </div>
+                        <div class="user-info">
+                            <strong>
+                                <?php 
+                                if (isset($_SESSION['email'])) {
+                                    echo htmlspecialchars(explode('@', $_SESSION['email'])[0]);
+                                } else {
+                                    echo "Ospite";
+                                }
+                                ?>
+                            </strong>
+                            <span>Docente Autorizzato</span>
+                            <?php if (isset($_SESSION['user_id'])): ?>
+                                <a href="logout.php" style="font-size: 0.8rem; color: #dc2626; text-decoration: none; display: block; margin-top: 2px;">Disconnetti</a>
+                            <?php endif; ?>
+                        </div>
+                        </div>
                 </div>
             </header>
 
@@ -173,7 +177,7 @@ if ($sostegnoResult) {
                                     $oreSostegno = htmlspecialchars($row['hours'] . " ore/sett");
                                     $programmazione = htmlspecialchars($row['study_type']);
                                     ?>
-                                    <tr data-city="<?php echo htmlspecialchars($row['city'] ?? ''); ?>" data-class="<?php echo htmlspecialchars($row['class'] ?? ''); ?>" data-sostegno="<?php echo $row['hours'] > 0 ? 'Assegnato' : 'Non assegnato'; ?>">
+                                    <tr class="clickable-row" data-id="<?php echo $id; ?>" data-city="<?php echo htmlspecialchars($row['city'] ?? ''); ?>" data-class="<?php echo htmlspecialchars($row['class'] ?? ''); ?>" data-sostegno="<?php echo $row['hours'] > 0 ? 'Assegnato' : 'Non assegnato'; ?>">
                                         <td><strong><?php echo $nomeCompleto; ?></strong></td>
                                         <td><?php echo $classeComune; ?></td>
                                         <td><span class="badge"><?php echo $oreSostegno; ?></span></td>
@@ -197,5 +201,20 @@ if ($sostegnoResult) {
     </div>
     <?php $conn->close(); ?>
     <script src="studenti.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('#studentiTableBody tr.clickable-row').forEach(function(row) {
+                row.addEventListener('click', function(event) {
+                    if (event.target.closest('a') || event.target.closest('button')) {
+                        return;
+                    }
+                    var studentId = row.dataset.id;
+                    if (studentId) {
+                        window.location.href = 'student_card.php?id=' + encodeURIComponent(studentId);
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

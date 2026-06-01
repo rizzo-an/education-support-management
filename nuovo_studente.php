@@ -1,3 +1,23 @@
+<?php
+session_start();
+$iniziali_utente = isset($_SESSION['email']) ? strtoupper(substr($_SESSION['email'], 0, 2)) : "AD";
+$nome_cognome_utente = isset($_SESSION['email']) ? htmlspecialchars(explode('@', $_SESSION['email'])[0]) : "Amministratore";
+$ruolo_utente = isset($_SESSION['role']) ? $_SESSION['role'] : "Admin";
+// carica tutor e insegnanti per i controlli del form
+$conn = new mysqli("localhost", "rizzo", "03022005", "sostegno");
+$tutors = [];
+$teachers = [];
+if (!$conn->connect_error) {
+    $res = $conn->query("SELECT id, first_name, last_name FROM tutors ORDER BY last_name ASC");
+    if ($res) {
+        while ($r = $res->fetch_assoc()) $tutors[] = $r;
+    }
+    $res2 = $conn->query("SELECT id, first_name, last_name FROM teachers ORDER BY last_name ASC");
+    if ($res2) {
+        while ($r = $res2->fetch_assoc()) $teachers[] = $r;
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -7,12 +27,6 @@
     <link rel="stylesheet" href="style.css">
     <script src="../js/general.js" defer></script>
 </head>
-<?php
-
-$iniziali_utente = "AD"; 
-$nome_cognome_utente = "Amministratore";
-$ruolo_utente = "Admin";
-?>
 <body>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
@@ -39,19 +53,29 @@ $ruolo_utente = "Admin";
         <div class="main-wrapper">
             
             <header class="topbar">
-                <button class="hamburger-btn" id="mobileMenuBtn">☰</button>
                 <div class="topbar-title">Dashboard</div>
-                <div class="user-profile-wrapper">          
-                    <div class="user-profile-group">
-                        <div class="avatar"><?php echo $iniziali_utente; ?></div>
+                 <div class="user-profile">
+                        <div class="avatar">
+                            <?php 
+                            echo isset($_SESSION['email']) ? strtoupper(substr($_SESSION['email'], 0, 1)) : "U"; 
+                            ?>
+                        </div>
                         <div class="user-info">
-                            <strong><?php echo $nome_cognome_utente; ?></strong>
-                            <span><?php echo $ruolo_utente; ?></span>
+                            <strong>
+                                <?php 
+                                if (isset($_SESSION['email'])) {
+                                    echo htmlspecialchars(explode('@', $_SESSION['email'])[0]);
+                                } else {
+                                    echo "Ospite";
+                                }
+                                ?>
+                            </strong>
+                            <span>Docente Autorizzato</span>
+                            <?php if (isset($_SESSION['user_id'])): ?>
+                                <a href="logout.php" style="font-size: 0.8rem; color: #dc2626; text-decoration: none; display: block; margin-top: 2px;">Disconnetti</a>
+                            <?php endif; ?>
                         </div>
                     </div>
-                    <div class="profile-logout-divider"></div>
-                    <a href="logout.php" class="logout-icon-link" title="Esci"><span class="icon-logout">🚪</span></a>
-                </div>
             </header>
 
             <main class="content">
@@ -65,8 +89,7 @@ $ruolo_utente = "Admin";
                 </div>
 
                 <form action="salva_studente.php" method="POST" class="add-form">
-                    
-                    <div class="form-section-card">
+
                         <div class="section-header">
                             <span class="section-icon">👤</span>
                             <h2>Dati Studente</h2>
@@ -123,6 +146,32 @@ $ruolo_utente = "Admin";
                         <div class="form-group" style="margin-top: 20px;">
                             <label for="note">Note sul supporto educativo</label>
                             <textarea id="note" name="note" rows="4" placeholder="Inserisci eventuali patologie (se necessario) o indicazioni per i tutor..." style="width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; outline: none; background-color: white; resize: vertical;"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section-card">
+                        <div class="section-header">
+                            <span class="section-icon">🔗</span>
+                            <h2>Assegnazioni</h2>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="tutor_id">Tutor (solo uno)</label>
+                                <select id="tutor_id" name="tutor_id">
+                                    <option value="">-- Nessuno --</option>
+                                    <?php foreach ($tutors as $t): ?>
+                                        <option value="<?php echo $t['id']; ?>"><?php echo htmlspecialchars($t['last_name'] . ' ' . $t['first_name']); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="teacher_ids">Insegnanti (più di uno)</label>
+                                <select id="teacher_ids" name="teacher_ids[]" multiple size="4">
+                                    <?php foreach ($teachers as $te): ?>
+                                        <option value="<?php echo $te['id']; ?>"><?php echo htmlspecialchars($te['last_name'] . ' ' . $te['first_name']); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
                         </div>
                     </div>
 

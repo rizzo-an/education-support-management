@@ -45,6 +45,41 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("ssssssi", $first_name, $last_name, $birth_date, $class, $city, $study_type, $hours);
        
         if ($stmt->execute()) {
+            // ottieni id studente inserito
+            $student_id = $conn->insert_id;
+
+            // inizia transazione per inserire relazioni
+            $conn->begin_transaction();
+            try {
+                // tutor (solo uno)
+                if (!empty($_POST['tutor_id'])) {
+                    $tutor_id = intval($_POST['tutor_id']);
+                    $insTutor = $conn->prepare("INSERT INTO tutors_students (student_id, tutor_id) VALUES (?, ?)");
+                    if ($insTutor) {
+                        $insTutor->bind_param("ii", $student_id, $tutor_id);
+                        $insTutor->execute();
+                        $insTutor->close();
+                    }
+                }
+
+                // insegnanti (più di uno)
+                if (!empty($_POST['teacher_ids']) && is_array($_POST['teacher_ids'])) {
+                    $insTeacher = $conn->prepare("INSERT INTO teachers_students (student_id, teacher_id) VALUES (?, ?)");
+                    if ($insTeacher) {
+                        foreach ($_POST['teacher_ids'] as $tid) {
+                            $t = intval($tid);
+                            $insTeacher->bind_param("ii", $student_id, $t);
+                            $insTeacher->execute();
+                        }
+                        $insTeacher->close();
+                    }
+                }
+
+                $conn->commit();
+            } catch (Exception $e) {
+                $conn->rollback();
+            }
+
             $stmt->close();
             $conn->close();
             header("Location: studenti.php");

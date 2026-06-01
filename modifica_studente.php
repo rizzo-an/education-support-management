@@ -41,6 +41,34 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
     die("ID studente non valido.");
 }
 
+// carica tutor e insegnanti per le selezioni
+$tutors = [];
+$teachers = [];
+$selected_tutor = null;
+$selected_teachers = [];
+$resT = $conn->query("SELECT id, first_name, last_name FROM tutors ORDER BY last_name ASC");
+if ($resT) { while ($r = $resT->fetch_assoc()) $tutors[] = $r; }
+$resTe = $conn->query("SELECT id, first_name, last_name FROM teachers ORDER BY last_name ASC");
+if ($resTe) { while ($r = $resTe->fetch_assoc()) $teachers[] = $r; }
+
+// carica relazioni esistenti
+$stmtRel = $conn->prepare("SELECT tutor_id FROM tutors_students WHERE student_id = ? LIMIT 1");
+if ($stmtRel) {
+    $stmtRel->bind_param("i", $id);
+    $stmtRel->execute();
+    $res = $stmtRel->get_result();
+    if ($res && $row = $res->fetch_assoc()) $selected_tutor = $row['tutor_id'];
+    $stmtRel->close();
+}
+$stmtRel2 = $conn->prepare("SELECT teacher_id FROM teachers_students WHERE student_id = ?");
+if ($stmtRel2) {
+    $stmtRel2->bind_param("i", $id);
+    $stmtRel2->execute();
+    $res2 = $stmtRel2->get_result();
+    if ($res2) { while ($r = $res2->fetch_assoc()) $selected_teachers[] = $r['teacher_id']; }
+    $stmtRel2->close();
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $first_name = $_POST['nome'] ?? '';
     $last_name = $_POST['cognome'] ?? '';
@@ -55,7 +83,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     if ($stmt_update) {
         $stmt_update->bind_param("ssssssii", $first_name, $last_name, $birth_date, $class, $city, $study_type, $hours, $id);
-        if ($stmt_update->execute()) {
+        if ($stmt_update->execute()) {            // aggiorna relazioni tutor / teachers
+            $conn->begin_transaction();
+            try {
+                // elimina relazioni esistenti
+                $del1 = $conn->prepare("DELETE FROM tutors_students WHERE student_id = ?");
+                if ($del1) { $del1->bind_param("i", $id); $del1->execute(); $del1->close(); }
+
+                $del2 = $conn->prepare("DELETE FROM teachers_students WHERE student_id = ?");
+                if ($del2) { $del2->bind_param("i", $id); $del2->execute(); $del2->close(); }
+
+                // inserisci nuovo tutor (se presente)
+                if (!empty($_POST['tutor_id'])) {
+                    $tutor_id = intval($_POST['tutor_id']);
+                    $insT = $conn->prepare("INSERT INTO tutors_students (student_id, tutor_id) VALUES (?, ?)");
+                    if ($insT) { $insT->bind_param("ii", $id, $tutor_id); $insT->execute(); $insT->close(); }
+                }
+
+                // inserisci insegnanti
+                if (!empty($_POST['teacher_ids']) && is_array($_POST['teacher_ids'])) {
+                    $insTe = $conn->prepare("INSERT INTO teachers_students (student_id, teacher_id) VALUES (?, ?)");
+                    if ($insTe) {
+                        foreach ($_POST['teacher_ids'] as $tid) {
+                            $t = intval($tid);
+                            $insTe->bind_param("ii", $id, $t);
+                            $insTe->execute();
+                        }
+                        $insTe->close();
+                    }
+                }
+
+                $conn->commit();
+            } catch (Exception $e) {
+                $conn->rollback();
+            }
             header("Location: studenti.php");
             exit;
         } else {
@@ -157,6 +218,29 @@ $conn->close();
                                 <option value="differenziata" <?php if($studente['study_type'] == 'differenziata') echo 'selected'; ?>>Differenziata</option>
                                 <option value="obiettivi minimi" <?php if($studente['study_type'] == 'obiettivi minimi') echo 'selected'; ?>>Obiettivi Minimi</option>
                             </select>
+                        </div>
+                    </div>
+
+                    <div class="form-section" style="margin-top:20px;">
+                        <h3>Assegnazioni</h3>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:10px;">
+                            <div class="form-group">
+                                <label for="tutor_id">Tutor (solo uno)</label>
+                                <select id="tutor_id" name="tutor_id" style="width:100%;padding:10px;">
+                                    <option value="">-- Nessuno --</option>
+                                    <?php foreach($tutors as $t): ?>
+                                        <option value="<?php echo $t['id']; ?>" <?php if($selected_tutor == $t['id']) echo 'selected'; ?>><?php echo htmlspecialchars($t['last_name'].' '.$t['first_name']); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="teacher_ids">Insegnanti (più di uno)</label>
+                                <select id="teacher_ids" name="teacher_ids[]" multiple size="4" style="width:100%;padding:10px;">
+                                    <?php foreach($teachers as $te): ?>
+                                        <option value="<?php echo $te['id']; ?>" <?php if(in_array($te['id'],$selected_teachers)) echo 'selected'; ?>><?php echo htmlspecialchars($te['last_name'].' '.$te['first_name']); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
                         </div>
                     </div>
 

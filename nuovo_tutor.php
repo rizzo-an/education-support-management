@@ -38,7 +38,6 @@ $ruolo_utente = "Docente";
         <div class="main-wrapper">
             <header class="topbar">
                 <div class="topbar-left">
-                    <button class="menu-toggle" id="menuToggle">☰</button>
                     <div class="topbar-title">Anagrafica Tutor</div>
                 </div>
                 <div class="user-profile">
