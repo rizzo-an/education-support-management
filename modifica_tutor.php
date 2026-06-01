@@ -32,15 +32,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $codice_fiscale = strtoupper(trim($_POST['codice_fiscale'] ?? ''));
     $birth_date = !empty($_POST['data_nascita']) ? $_POST['data_nascita'] : null;
     $telephone_number = trim($_POST['telefono'] ?? '');
+    $email = trim($_POST['email'] ?? '');
     $cooperative_id = !empty($_POST['cooperativa']) ? intval($_POST['cooperativa']) : null;
     $monte_ore = !empty($_POST['monte_ore']) ? intval($_POST['monte_ore']) : null;
     $note = trim($_POST['note'] ?? '');
 
-    if (!empty($first_name) && !empty($last_name) && !empty($telephone_number)) {
-        $sql = "UPDATE tutors SET first_name = ?, last_name = ?, codice_fiscale = ?, birth_date = ?, telephone_number = ?, cooperative_id = ?, monte_ore = ?, note = ? WHERE id = ?";
+    if (!empty($first_name) && !empty($last_name) && !empty($telephone_number) && !empty($email)) {
+        $sql = "UPDATE tutors SET first_name = ?, last_name = ?, codice_fiscale = ?, birth_date = ?, telephone_number = ?, email = ?, cooperative_id = ?, monte_ore = ?, note = ? WHERE id = ?";
         $stmt_up = $conn->prepare($sql);
         if ($stmt_up) {
-            $stmt_up->bind_param("sssssissi", $first_name, $last_name, $codice_fiscale, $birth_date, $telephone_number, $cooperative_id, $monte_ore, $note, $id);
+            $stmt_up->bind_param("ssssssissi", $first_name, $last_name, $codice_fiscale, $birth_date, $telephone_number, $email, $cooperative_id, $monte_ore, $note, $id);
             if ($stmt_up->execute()) {
                 header("Location: tutor.php?aggiornato=1");
                 exit;
@@ -50,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt_up->close();
         }
     } else {
-        $errore = "Tutti i campi principali (Nome, Cognome e Telefono) sono obbligatori.";
+        $errore = "Tutti i campi principali (Nome, Cognome, Telefono e Email) sono obbligatori.";
     }
 }
 ?>
@@ -159,9 +160,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <input type="text" name="telefono" value="<?php echo htmlspecialchars($tutor['telephone_number']); ?>" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none;">
                             </div>
                             <div class="form-group">
-                                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #334155;">Monte Ore Settimanale</label>
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #334155;">Email <span style="color: #dc2626;">*</span></label>
+                                <input type="email" name="email" value="<?php echo htmlspecialchars($tutor['email'] ?? ''); ?>" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none;">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #334155;\">Monte Ore Settimanale</label>
                                 <input type="number" name="monte_ore" min="1" max="40" value="<?php echo htmlspecialchars($tutor['monte_ore'] ?? ''); ?>" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none;">
                             </div>
+                            <div style="display: none;"></div>
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">

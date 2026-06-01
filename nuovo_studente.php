@@ -114,6 +114,12 @@ if (!$conn->connect_error) {
                         </div>
                         <div class="form-row">
                             <div class="form-group">
+                                <label for="email">Email <span class="required">*</span></label>
+                                <input type="email" id="email" name="email" placeholder="Es. mario.rossi@example.com" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
                                 <label for="comune">Comune di Appartenenza <span class="required">*</span></label>
                                 <input type="text" id="comune" name="comune" placeholder="Es. Milano" required>
                             </div>

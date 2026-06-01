@@ -1,4 +1,4 @@
-<?php
+<?php /*
 session_start();
 
 $conn = new mysqli("localhost", "rizzo", "03022005", "sostegno");
@@ -111,7 +111,9 @@ $conn->close();
                 Crea Account
             </button>
         </form>
-
+ 👤 Tutor
+📖 Insegnanti di Sostegno
+🏢 Cooperative 
         <div style="text-align: center; margin-top: 20px;">
             <a href="login.php" style="color: #2563eb; text-decoration: none; font-size: 0.95rem;">Hai già un account? Accedi</a>
         </div>

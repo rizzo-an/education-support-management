@@ -42,8 +42,7 @@ session_start();
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <?php if (!isset($_SESSION['user_id'])): ?>
                         <div style="display: flex; gap: 10px;">
-                            <a href="login.php" class="btn-outline" style="padding: 6px 12px; text-decoration: none; font-size: 0.9rem; border-radius: 6px;">Accedi</a>
-                            <a href="registrazione.php" class="btn-primary" style="padding: 6px 12px; text-decoration: none; font-size: 0.9rem; border-radius: 6px; color: white; display: inline-block;">Registrati</a>
+                            <a href="login.php" class="btn-primary" style="padding: 6px 12px; text-decoration: none; font-size: 0.9rem; border-radius: 6px; color: white; display: inline-block;">Accedi</a>
                         </div>
                     <?php endif; ?>
 

@@ -118,12 +118,7 @@ if ($result && $result->num_rows === 0) {
                             <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 180px;">
                                 <div>
                                     <div class="card-header">
-                                        <div class="card-icon">
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M3 12h18"></path>
-                                                <path d="M12 3v18"></path>
-                                            </svg>
-                                        </div>
+                                        <div class="card-icon">🏢</div>
                                         <span class="badge-green">COOPERATIVA</span>
                                     </div>
                                     <h3><?php echo $nome; ?></h3>

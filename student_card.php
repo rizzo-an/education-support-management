@@ -56,6 +56,7 @@ $fullName = htmlspecialchars($student['first_name'] . ' ' . $student['last_name'
 $birthDate = htmlspecialchars($student['birth_date'] ?? '');
 $class = htmlspecialchars($student['class'] ?? '');
 $city = htmlspecialchars($student['city'] ?? '');
+$email = htmlspecialchars($student['email'] ?? '');
 $studyType = htmlspecialchars($student['study_type'] ?? '');
 $hours = htmlspecialchars($student['hours'] ?? 0);
 $tutorName = htmlspecialchars($student['tutor_name'] ?? 'Non assegnato');
@@ -175,6 +176,10 @@ $teacherNames = array_map(function ($item) {
                             <div class="info-block">
                                 <strong>Comune</strong>
                                 <span><?php echo $city ?: 'Non specificato'; ?></span>
+                            </div>
+                            <div class="info-block">
+                                <strong>Email</strong>
+                                <span><?php echo $email ?: 'Non specificata'; ?></span>
                             </div>
                         </div>
 

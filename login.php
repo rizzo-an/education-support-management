@@ -2,55 +2,31 @@
 session_start();
 
 if (isset($_SESSION['user_id'])) {
-    header("Location: students.php"); 
+    header("Location: studenti.php"); 
     exit;
-}
-
-$conn = new mysqli("localhost", "rizzo", "03022005", "sostegno");
-
-if ($conn->connect_error) {
-    die("Connessione fallita: " . $conn->connect_error);
 }
 
 $errore = "";
 $msg_successo = "";
 
-if (isset($_GET['registrato']) && $_GET['registrato'] == 1) {
-    $msg_successo = "Registrazione completata con successo! Ora puoi effettuare l'accesso.";
-}
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = trim($_POST['email'] ?? '');
+    $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    if (!empty($email) && !empty($password)) {
-        $sql = "SELECT * FROM users WHERE email = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
+    if (!empty($username) && !empty($password)) {
+        if ($username === 'utente' && $password === 'utente123!') {
+            $_SESSION['user_id'] = 1;
+            $_SESSION['email'] = 'utente@localhost';
 
-        if ($result && $result->num_rows > 0) {
-            $user = $result->fetch_assoc();
-            
-            if (password_verify($password, $user['password_hash'])) {
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['email'] = $user['email'];
-
-                header("Location: studenti.php");
-                exit;
-            } else {
-                $errore = "Password errata. Riprova.";
-            }
+            header("Location: studenti.php");
+            exit;
         } else {
-            $errore = "Nessun account associato a questa email.";
+            $errore = "Username o password errata. Riprova.";
         }
-        $stmt->close();
     } else {
         $errore = "Compila tutti i campi richiesti.";
     }
 }
-$conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -105,15 +81,12 @@ $conn->close();
 
             <form id="loginForm" action="" method="POST">
                 <div class="form-group">
-                    <label for="email">Email Istituzionale</label>
-                    <input type="email" id="email" name="email" placeholder="nome.cognome@scuola.edu.it" required>
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Inserisci username" required>
                 </div>
 
                 <div class="form-group">
-                    <div class="label-row">
-                        <label for="password">Password</label>
-                        <a href="#" class="forgot-password">Password dimenticata?</a>
-                    </div>
+                    <label for="password">Password</label>
                     <input type="password" id="password" name="password" required>
                 </div>
 
@@ -121,10 +94,6 @@ $conn->close();
                     <span class="btn-icon">➔</span> Accedi al portale
                 </button>
             </form>
-
-            <div class="register-link">
-                <a href="registrazione.php">Nuovo docente? Registrati</a>
-            </div>
 
         </div>
     </div>

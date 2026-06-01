@@ -79,13 +79,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $city = $_POST['comune'] ?? '';
     $hours = !empty($_POST['monte_ore']) ? intval($_POST['monte_ore']) : 0;
     $note = $_POST['note'] ?? '';
+    $email = trim($_POST['email'] ?? '');
     $study_type = normalizeStudyType($_POST['programmazione'] ?? $_POST['tipo_programmazione'] ?? $_POST['study_type'] ?? 'differenziata');
 
-    $sql_update = "UPDATE students SET first_name = ?, last_name = ?, birth_date = ?, class = ?, city = ?, study_type = ?, hours = ?, note = ? WHERE id = ?";
+    $sql_update = "UPDATE students SET first_name = ?, last_name = ?, birth_date = ?, class = ?, city = ?, study_type = ?, hours = ?, note = ?, email = ? WHERE id = ?";
     $stmt_update = $conn->prepare($sql_update);
 
     if ($stmt_update) {
-        $stmt_update->bind_param("ssssssisi", $first_name, $last_name, $birth_date, $class, $city, $study_type, $hours, $note, $id);
+        $stmt_update->bind_param("ssssssissi", $first_name, $last_name, $birth_date, $class, $city, $study_type, $hours, $note, $email, $id);
         if ($stmt_update->execute()) {
             $conn->begin_transaction();
             try {
@@ -229,6 +230,11 @@ $conn->close();
                         <div class="form-group">
                             <label for="comune">Comune / Città</label>
                             <input type="text" id="comune" name="comune" value="<?php echo htmlspecialchars($studente['city']); ?>" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email <span style="color: red;">*</span></label>
+                            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($studente['email'] ?? ''); ?>" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
                         </div>
 
                         <div class="form-group">

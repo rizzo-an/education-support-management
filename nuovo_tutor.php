@@ -121,6 +121,10 @@ if ($coopResult) {
                                 <label for="telefono">Numero di Telefono <span class="required">*</span></label>
                                 <input type="text" id="telefono" name="telefono" placeholder="Es. +39 345 1234567" required>
                             </div>
+                            <div class="form-group">
+                                <label for="email">Email <span class="required">*</span></label>
+                                <input type="email" id="email" name="email" placeholder="Es. nome.cognome@example.com" required>
+                            </div>
                         </div>
                     </div>
 

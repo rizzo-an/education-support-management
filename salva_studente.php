@@ -35,15 +35,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $city = $_POST['comune'] ?? $_POST['city'] ?? ''; 
     $hours = !empty($_POST['monte_ore']) ? intval($_POST['monte_ore']) : 0;
     $note = trim($_POST['note'] ?? '');
+    $email = trim($_POST['email'] ?? '');
     $study_type = normalizeStudyType($_POST['tipo_programmazione'] ?? $_POST['programmazione'] ?? $_POST['study_type'] ?? 'differenziata');
 
-    $sql = "INSERT INTO students (`first_name`, `last_name`, `birth_date`, `class`, `city`, `study_type`, `hours`, `note`) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO students (`first_name`, `last_name`, `birth_date`, `class`, `city`, `study_type`, `hours`, `note`, `email`) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             
     $stmt = $conn->prepare($sql);
 
     if ($stmt) {
-        $stmt->bind_param("ssssssis", $first_name, $last_name, $birth_date, $class, $city, $study_type, $hours, $note);
+        $stmt->bind_param("ssssssiss", $first_name, $last_name, $birth_date, $class, $city, $study_type, $hours, $note, $email);
        
         if ($stmt->execute()) {
             // ottieni id studente inserito

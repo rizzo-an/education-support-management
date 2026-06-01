@@ -18,18 +18,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $codice_fiscale = strtoupper(trim($_POST['codice_fiscale'] ?? ''));
     $birth_date = !empty($_POST['data_nascita']) ? $_POST['data_nascita'] : null;
     $telephone_number = trim($_POST['telefono'] ?? '');
+    $email = trim($_POST['email'] ?? '');
     $cooperative_id = !empty($_POST['cooperativa']) ? intval($_POST['cooperativa']) : null;
     $monte_ore = !empty($_POST['monte_ore']) ? intval($_POST['monte_ore']) : null;
     $note = trim($_POST['note'] ?? '');
 
-    $sql = "INSERT INTO tutors (first_name, last_name, codice_fiscale, birth_date, telephone_number, cooperative_id, monte_ore, note) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO tutors (first_name, last_name, codice_fiscale, birth_date, telephone_number, email, cooperative_id, monte_ore, note) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             
     $stmt = $conn->prepare($sql);
 
     if ($stmt) {
         
-        $stmt->bind_param("sssssiss", $first_name, $last_name, $codice_fiscale, $birth_date, $telephone_number, $cooperative_id, $monte_ore, $note);
+        $stmt->bind_param("ssssssissi", $first_name, $last_name, $codice_fiscale, $birth_date, $telephone_number, $email, $cooperative_id, $monte_ore, $note);
        
         if ($stmt->execute()) {
             $stmt->close();
